@@ -3,18 +3,12 @@
 // Parameter: id:string des HTML-Canvas
 export function init(id) {
     const canvas = document.getElementById(id);
-    // console.log(canvas);
-    const ctx = canvas.getContext("2d");  // 
+    const context = canvas.getContext("2d");
+    const d = new Date().toLocaleString("de-DE");
+    console.log("Canvas Inited", d);
 
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        // console.log(`${canvas.width}x${canvas.height}`)
-    }
-    resize();
-    window.addEventListener("resize", resize);
-
-    return { canvas, ctx };
+    // {"canvas": canvas, "context": context};
+    return { canvas, context };
 }
 
 export function rect(ctx) {
@@ -49,12 +43,10 @@ export function drawRotatedRect(ctx) {
     const rectWidth = 100;
     const rectHeight = 60;
 
-    ctx.translate(rectWidth, rectHeight);
+    ctx.translate(rectWidth, rectHeight)
     ctx.rotate(angle);
     ctx.fillStyle = 'blue';
     ctx.fillRect(-rectWidth / 2, -rectHeight / 2, rectWidth, rectHeight);
-    ctx.fillStyle = 'gray';
-    ctx.fillRect(0, 0, rectWidth, rectHeight);
     angle += 0.02;
 }
 

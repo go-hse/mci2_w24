@@ -3,34 +3,40 @@ import * as lib from "./js/canvas_funcs.mjs"
 // Aeussere Funktion: anonym/lamda
 // an Eventlistener; wird einmal nach dem Laden aufgerufen
 window.onload = () => {
-    // Kontext oder Scope / Gültigkeitbereich
-    const { canvas, context } = lib.init("canvas_id");
+    const { canvas, ctx } = lib.init("canvas_id");
 
-    // inner Funktion draw
+    function drawStarWithParas(ctx) {
+        lib.drawStar(ctx, 100, 100, 5, 50, 30);
+    }
+
+    const drawFuncs = [lib.drawRotatedRect, lib.rect, ctx => lib.drawStar(ctx, 100, 100, 5, 50, 30), lib.drawGradient];
+
+    // Haupt-Zeichnen-Funktion
     function draw() {
-        context.clearRect(0, 0, canvas.Width, canvas.height);
+        ctx.resetTransform();   // Zurücksetzen der Transformation
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Löschen der Zeichnung wg. Animation
 
-        // ab hier wird in dieser Farbe gefüllt
-        context.fillStyle = "#f00";
+        const deltaX = canvas.width / drawFuncs.length;
+        let startX = 0;
+        for (const func of drawFuncs) {
+            ctx.resetTransform();
+            ctx.translate(startX, 0);
+            func(ctx);
+            startX += deltaX;
+        }
 
-        // rechteck malen
-        context.fillRect(10, 40, 200, 100);
-
-        // rand zeichnen
-        context.strokeStyle = "#00f";
-        context.lineWidth = 3;
-        context.strokeRect(10, 40, 200, 100);
+        window.requestAnimationFrame(draw);
     }
 
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        draw();
-    }
-    window.addEventListener("resize", resize);
+    // KEINE ENDLOS-SCHLEIFE
+    // while (true) {
+    //     draw();
+    // }
 
-    resize();
     draw();
+
+    const d = new Date().toLocaleString("de-DE");
+    console.log("onload finish", d);
 
 };
 

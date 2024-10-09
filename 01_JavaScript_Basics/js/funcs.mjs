@@ -72,5 +72,15 @@ export function Fisch() {
     return that;
 }
 
+const compose = (...fncs) => ini => fncs.reduceRight((ac, cur) => cur(ac), ini);
+
+const increment = n => n + 1;
+const double = n => n * 2;
+const square = n => n * n;
+
+const incDoubleSquare = compose(square, double, increment);
+console.log(incDoubleSquare(3)); // 64
+
+
 
 
