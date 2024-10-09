@@ -87,3 +87,23 @@ export function drawGradient(ctx) {
     ctx.strokeRect(10, 40, 200, 100);
 
 }
+
+export function drawText() {
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Font und Textfarbe setzen
+    ctx.font = '30px Arial';
+    ctx.fillStyle = 'blue';
+    ctx.fillText('Hallo, Welt!', 50, 50);
+
+    // Anderen Font verwenden
+    ctx.font = '40px Verdana';
+    ctx.fillStyle = 'green';
+    ctx.fillText('Verschiedene Schriftarten!', 50, 100);
+
+    // Noch einen anderen Font
+    ctx.font = '50px Comic Sans MS';
+    ctx.fillStyle = 'red';
+    ctx.fillText('Canvas Text', 50, 150);
+}
