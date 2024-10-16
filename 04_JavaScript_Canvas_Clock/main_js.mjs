@@ -6,62 +6,105 @@ window.onload = () => {
     const { canvas, ctx } = lib.init("canvas_id");
     ctx.fillStyle = "#f00";
 
-    const size = 50;
+    const size = 70;
+    const border = size / 10;
+
     const radius = 100, hourAngle = Math.PI / 6;
     const PIH = Math.PI / - 2;
 
-    ctx.font = '10px Verdana';
-    ctx.fillStyle = 'green';
+    ctx.font = `${size}px Verdana`
+
+    ctx.fillStyle = 'black';
+
+    function pad(num, size) {
+        let s = num + "";
+        while (s.length < size) s = "0" + s;
+        return s;
+    }
+
 
     // Haupt-Zeichnen-Funktion
     function draw() {
+        ctx.resetTransform();
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+
         const now = new Date();
-        let hours = now.getHours();
-        if (hours > 12) hours -= 12;
+        const hours = now.getHours();
         const minutes = now.getMinutes();
         const seconds = now.getSeconds();
 
-
-        ctx.resetTransform();   // Zurücksetzen der Transformation
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Löschen der Zeichnung wg. Animation
-
-        // 1. Verschiebung in die Mitte des Bildschirms
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate(-2 * hourAngle);
-
+        ctx.rotate(-Math.PI / 2);
+        ctx.lineCap = "round";
+        ctx.scale(3, 3);
         ctx.save();
-        ctx.fillStyle = "#f00";
-        ctx.rotate(-hourAngle + seconds * Math.PI / 30);
-        ctx.fillRect(0, 0, radius + size, 1);
-        ctx.restore();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#000";
 
-        ctx.save();
-        ctx.fillStyle = "#000";
-        ctx.rotate(-hourAngle + minutes * Math.PI / 30);
-        ctx.fillRect(0, 0, radius + size, 3);
-        ctx.restore();
-
-        ctx.save();
-        ctx.fillStyle = "#000";
-        ctx.rotate(-hourAngle + hours * Math.PI / 6);
-        ctx.fillRect(0, 0, radius, 6);
-        ctx.restore();
-
-        ctx.save();
-        ctx.fillStyle = "#000";
-        for (let i = 0; i < 12; ++i) {
-            ctx.fillRect(radius, 0, size, 1);
-            ctx.save();
-            ctx.translate(radius + size + 5, 0);
-            ctx.rotate(Math.PI / 2 - (i + 1) * hourAngle);
-            ctx.fillText(`${i + 1}`, 0, 0);
-            ctx.restore();
-            ctx.rotate(hourAngle);
+        for (let i = 0; i < 60; ++i) {
+            if (i % 5 == 0) {
+                ctx.beginPath();
+                ctx.moveTo(radius, 0);
+                ctx.lineTo(radius + 12, 0);
+                ctx.closePath();
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(radius, 0);
+                ctx.lineTo(radius + 5, 0);
+                ctx.closePath();
+                ctx.stroke();
+            }
+            ctx.rotate(Math.PI / 30);
         }
         ctx.restore();
 
+        // hrs: 0-11: 2xPI/12 --> PI/6
+        ctx.save();
+        ctx.rotate(hours * hourAngle + (Math.PI / 360) * minutes + (Math.PI / 21600) * seconds)
 
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.lineCap = "round";
+        ctx.moveTo(0, 0);
+        ctx.lineTo(60, 0);
+        ctx.stroke();
+        ctx.restore();
 
+        // min: 0-59: 2xPI/60 --> PI/30
+        ctx.save();
+        ctx.rotate((Math.PI / 30) * minutes + (Math.PI / 1800) * seconds)
+        ctx.strokeStyle = "#555";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(80, 0);
+        ctx.stroke();
+        ctx.restore();
+
+        // sec: 0-59: 2xPI/60 --> PI/30
+        ctx.rotate(seconds * Math.PI / 30);
+        ctx.strokeStyle = "#f66";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-5, 0);
+        ctx.lineTo(100, 0);
+        ctx.stroke();
+
+        ctx.resetTransform();
+        const txt = `${pad(hours, 2)}:${pad(minutes, 2)}:${pad(seconds, 2)}`;
+        const bb = ctx.measureText(txt);
+        const height = bb.actualBoundingBoxAscent + bb.actualBoundingBoxDescent;
+        console.log(bb.width, height);
+
+        ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+
+        ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+        ctx.fillRect(-bb.width / 2, -40 - height - border, bb.width, height + 2 * border);
+
+        ctx.fillStyle = "#fff";
+        ctx.fillText(txt, -bb.width / 2, -40);
 
         window.requestAnimationFrame(draw);
     }
@@ -69,4 +112,3 @@ window.onload = () => {
     const d = new Date().toLocaleString("de-DE");
     console.log("onload finish", d);
 };
-// https://prod.liveshare.vsengsaas.visualstudio.com/join?883342D3E7B3C3B21469F3AF099A56F21B59
