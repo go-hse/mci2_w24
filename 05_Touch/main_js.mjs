@@ -7,12 +7,20 @@ window.onload = () => {
     ctx.fillStyle = "#f00";
 
 
+    const interactiveElements = [];
+    interactiveElements.push(lib.createButton(ctx, 100, 100, 50, () => { console.log("btn A"); }));
+    interactiveElements.push(lib.createButton(ctx, 200, 100, 50, () => { console.log("btn B"); }));
+
     const Touches = {};
 
     canvas.addEventListener("touchstart", (evt) => {
         evt.preventDefault();
         for (const t of evt.changedTouches) {
             Touches[t.identifier] = { x: t.pageX, y: t.pageY };
+            for (const ie of interactiveElements) {
+                ie.is_touched(t.identifier, t.pageX, t.pageY);
+            }
+
             // console.log(`finger ${t.identifier}: ${t.pageX}, ${t.pageY}`);
         }
     });
@@ -21,6 +29,9 @@ window.onload = () => {
         evt.preventDefault();
         for (const t of evt.changedTouches) {
             delete Touches[t.identifier];
+            for (const ie of interactiveElements) {
+                ie.reset(t.identifier);
+            }
         }
     });
 
@@ -43,6 +54,10 @@ window.onload = () => {
         for (const identifier of ids) {
             const t = Touches[identifier];
             lib.drawStar(ctx, t.x, t.y, 6, 40, 30);
+        }
+
+        for (const ie of interactiveElements) {
+            ie.draw();
         }
 
         window.requestAnimationFrame(draw);

@@ -17,6 +17,49 @@ export function init(id) {
     return { canvas, ctx };
 }
 
+function distance(x1, y1, x2, y2) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+export function createButton(ctx, x, y, radius, callback) {
+    let touched = false, identifier;
+
+    function draw() {
+        if (touched) circle(ctx, x, y, radius, "red");
+        else circle(ctx, x, y, radius, "gray");
+    }
+
+    function is_touched(id, tx, ty) {
+        touched = distance(x, y, tx, ty) < radius;
+        if (touched) {
+            identifier = id;
+            callback();
+        }
+    }
+
+    function reset(id) {
+        if (id === identifier) {
+            touched = false;
+            identifier = undefined;
+        }
+    }
+
+    return { draw, is_touched, reset };
+
+}
+
+const END_ANGLE = Math.PI * 2;
+
+function circle(ctx, x, y, radius, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, END_ANGLE, true);
+    ctx.fill();
+}
+
+
 export function rect(ctx) {
     ctx.fillStyle = "#f0f";
     ctx.fillRect(10, 10, 20, 40);
