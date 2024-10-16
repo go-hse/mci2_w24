@@ -6,13 +6,8 @@ window.onload = () => {
     const { canvas, ctx } = lib.init("canvas_id");
     ctx.fillStyle = "#f00";
 
-    const size = 70;
-    const border = size / 10;
-
-    const radius = 100, hourAngle = Math.PI / 6;
     const PIH = Math.PI / - 2;
 
-    ctx.font = `${size}px Verdana`
 
     ctx.fillStyle = 'black';
 
@@ -28,6 +23,13 @@ window.onload = () => {
         ctx.resetTransform();
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+
+        const fontsize = canvas.width / 6;
+        const border = fontsize / 10;
+        ctx.font = `${fontsize}px Verdana`
+
+        const radius = canvas.width / 5, hourAngle = Math.PI / 6;
+
 
         const now = new Date();
         const hours = now.getHours();
