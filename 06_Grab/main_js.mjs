@@ -4,18 +4,20 @@ import * as lib from "./js/canvas_funcs.mjs"
 // an Eventlistener; wird einmal nach dem Laden aufgerufen
 window.onload = () => {
     const { canvas, ctx } = lib.init("canvas_id");
-    ctx.fillStyle = "#f00";
+    ctx.fillStyle = "#333";
 
     const u = lib.u_path();
 
 
     const interactiveElements = [];
-    const Touches = {}, points = []
-    let lineColor = "#f00";
+    const Touches = {}, points = [];
+    let lineColor = "#aaa";
     interactiveElements.push(lib.createButton(ctx, 100, 100, 50, () => { lineColor = "#f00"; }));
     interactiveElements.push(lib.createButton(ctx, 200, 100, 50, () => { lineColor = "#0f0"; }));
+    interactiveElements.push(lib.createButton(ctx, 300, 100, 50, () => { points.length = 0; }));
     // interactiveElements.push(lib.createButtonFromPath(ctx, 400, 100, u, 30, () => { console.log("btn U"); }));
-    interactiveElements.push(lib.createGrabbable(ctx, 400, 100, u, 30));
+    interactiveElements.push(lib.createGrabbable(ctx, 400, 200, u, 30));
+    interactiveElements.push(lib.createJoystick(ctx, 400, 400));
 
 
     canvas.addEventListener("touchstart", (evt) => {

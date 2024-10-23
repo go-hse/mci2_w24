@@ -101,7 +101,7 @@ export function createGrabbable(ctx, x, y, p, sc) {
 
     function draw() {
         ctx.save();
-        console.log(L.e, L.f);
+        // console.log(L.e, L.f);
         if (touched)
             fillPath(ctx, p, L, "#f00");
         else
@@ -121,7 +121,7 @@ export function createGrabbable(ctx, x, y, p, sc) {
     }
 
     function move(id, tx, ty) {
-        if (id == identifier) {
+        if (id === identifier) {
             // console.log(id, tx, ty);
             L = (new DOMMatrix([1, 0, 0, 1, tx, ty])).multiplySelf(P);   // Tn P
         }
@@ -138,6 +138,59 @@ export function createGrabbable(ctx, x, y, p, sc) {
     return { draw, is_touched, reset, move };
 
 }
+
+export function createJoystick(ctx, x, y, radius = 60) {
+    let touched = false, identifier;
+
+    const Touchpoints = {};
+
+    // Zeichenfunktion
+    function draw() {
+        if (touched) circle(ctx, x, y, radius, "orange");
+        else circle(ctx, x, y, radius, "red");
+
+        if (Touchpoints.initial !== undefined)
+            circle(ctx, Touchpoints.initial.tx, Touchpoints.initial.ty, 6, "gray");
+        if (Touchpoints.firstExternal !== undefined)
+            circle(ctx, Touchpoints.firstExternal.tx, Touchpoints.firstExternal.ty, 6, "gray");
+    }
+
+    // Berührungfunktion
+    function is_touched(id, tx, ty) {
+        touched = distance(x, y, tx, ty) < radius;
+        if (touched) {
+            identifier = id;
+            Touchpoints.initial = { tx, ty };
+        }
+    }
+
+    function move(id, tx, ty) {
+        if (id === identifier) {
+            // console.log(id, tx, ty);
+            if (Touchpoints.firstExternal === undefined) {
+                const d = distance(x, y, tx, ty);
+                if (d > radius) {
+                    Touchpoints.firstExternal = { tx, ty };
+                }
+            }
+        }
+
+    }
+
+    function reset(id) {
+        if (id === identifier) {
+            touched = false;
+            identifier = undefined;
+            Touchpoints.firstExternal = undefined;
+            Touchpoints.initial = undefined;
+        }
+    }
+
+    return { draw, is_touched, reset, move };
+
+}
+
+
 
 
 export function u_path() {
