@@ -50,6 +50,66 @@ export function createButton(ctx, x, y, radius, callback) {
 
 }
 
+export function createButtonFromPath(ctx, x, y, p, sc, callback) {
+    let touched = false, identifier, M;
+
+    function draw() {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(sc, sc);
+        M = ctx.getTransform();
+        if (touched) path(ctx, p, "#f00", "#f00", 1);
+        else path(ctx, p, "#aaa", "#aaa", 1);
+
+        ctx.restore();
+    }
+
+    function is_touched(id, tx, ty) {
+        const I = (new DOMMatrix(M)).invertSelf();  // M-1
+        const L = I.transformPoint(new DOMPoint(tx, ty));
+        touched = ctx.isPointInPath(p, L.x, L.y);
+        if (touched) {
+            identifier = id;
+            callback();
+        }
+    }
+
+
+    function reset(id) {
+        if (id === identifier) {
+            touched = false;
+            identifier = undefined;
+        }
+    }
+
+    return { draw, is_touched, reset };
+
+}
+
+
+export function u_path() {
+    let upath = new Path2D();
+    upath.moveTo(-2, -2);
+    upath.lineTo(-2, 2);
+    upath.lineTo(-1, 2);
+    upath.lineTo(-1, -1);
+    upath.lineTo(1, -1);
+    upath.lineTo(1, 2);
+    upath.lineTo(2, 2);
+    upath.lineTo(2, -2);
+    upath.closePath();
+    return upath;
+}
+
+export function path(ctx, p, fillStyle = "#fff", strokeStyle = "#000", lineWidth = 1) {
+    ctx.fillStyle = fillStyle;
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = strokeStyle;
+    ctx.fill(p);
+    ctx.stroke(p);
+}
+
+
 const END_ANGLE = Math.PI * 2;
 
 function circle(ctx, x, y, radius, color) {

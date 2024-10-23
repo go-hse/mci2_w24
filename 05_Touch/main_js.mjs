@@ -6,10 +6,13 @@ window.onload = () => {
     const { canvas, ctx } = lib.init("canvas_id");
     ctx.fillStyle = "#f00";
 
+    const u = lib.u_path();
+
 
     const interactiveElements = [];
     interactiveElements.push(lib.createButton(ctx, 100, 100, 50, () => { console.log("btn A"); }));
     interactiveElements.push(lib.createButton(ctx, 200, 100, 50, () => { console.log("btn B"); }));
+    interactiveElements.push(lib.createButtonFromPath(ctx, 400, 100, u, 30, () => { console.log("btn U"); }));
 
     const Touches = {};
 
