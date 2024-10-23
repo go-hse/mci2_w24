@@ -12,7 +12,8 @@ window.onload = () => {
     const interactiveElements = [];
     interactiveElements.push(lib.createButton(ctx, 100, 100, 50, () => { console.log("btn A"); }));
     interactiveElements.push(lib.createButton(ctx, 200, 100, 50, () => { console.log("btn B"); }));
-    interactiveElements.push(lib.createButtonFromPath(ctx, 400, 100, u, 30, () => { console.log("btn U"); }));
+    // interactiveElements.push(lib.createButtonFromPath(ctx, 400, 100, u, 30, () => { console.log("btn U"); }));
+    interactiveElements.push(lib.createGrabbable(ctx, 400, 100, u, 30));
 
     const Touches = {};
 
@@ -43,6 +44,9 @@ window.onload = () => {
         evt.preventDefault();
         for (const t of evt.changedTouches) {
             Touches[t.identifier] = { x: t.pageX, y: t.pageY };
+            for (const ie of interactiveElements) {
+                ie.move(t.identifier, t.pageX, t.pageY);
+            }
         }
     });
 

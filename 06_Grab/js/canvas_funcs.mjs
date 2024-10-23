@@ -26,11 +26,13 @@ function distance(x1, y1, x2, y2) {
 export function createButton(ctx, x, y, radius, callback) {
     let touched = false, identifier;
 
+    // Zeichenfunktion
     function draw() {
         if (touched) circle(ctx, x, y, radius, "red");
         else circle(ctx, x, y, radius, "gray");
     }
 
+    // Berührungfunktion
     function is_touched(id, tx, ty) {
         touched = distance(x, y, tx, ty) < radius;
         if (touched) {
@@ -39,6 +41,7 @@ export function createButton(ctx, x, y, radius, callback) {
         }
     }
 
+    // Reset-Funktione
     function reset(id) {
         if (id === identifier) {
             touched = false;
@@ -46,13 +49,13 @@ export function createButton(ctx, x, y, radius, callback) {
         }
     }
 
-    return { draw, is_touched, reset };
+    return { draw, is_touched, reset, move: () => { } };
 
 }
 
 export function createButtonFromPath(ctx, x, y, p, sc, callback) {
     let touched = false, identifier;
-    let M = setTransform(ctx, x, y, 0, sc);
+    let M = setTransform(ctx, x, y, 0, sc);  // Matrix M Transformation
 
     function draw() {
         ctx.save();
@@ -87,7 +90,52 @@ export function createButtonFromPath(ctx, x, y, p, sc, callback) {
         }
     }
 
-    return { draw, is_touched, reset };
+    return { draw, is_touched, reset, move: () => { } };
+
+}
+
+
+export function createGrabbable(ctx, x, y, p, sc) {
+    let touched = false, identifier, P;
+    let L = setTransform(ctx, x, y, 0, sc);  // Matrix M Transformation
+
+    function draw() {
+        ctx.save();
+        console.log(L.e, L.f);
+        if (touched)
+            fillPath(ctx, p, L, "#f00");
+        else
+            fillPath(ctx, p, L, "#f0f");
+
+        ctx.restore();
+    }
+
+    function is_touched(id, tx, ty) {
+        const I = (new DOMMatrix(L)).invertSelf();  // M-1
+        const tp = I.transformPoint(new DOMPoint(tx, ty));
+        touched = ctx.isPointInPath(p, tp.x, tp.y);
+        if (touched) {
+            identifier = id;
+            P = (new DOMMatrix([1, 0, 0, 1, -tx, -ty])).multiplySelf(L); // Ti-1 Li
+        }
+    }
+
+    function move(id, tx, ty) {
+        if (id == identifier) {
+            // console.log(id, tx, ty);
+            L = (new DOMMatrix([1, 0, 0, 1, tx, ty])).multiplySelf(P);   // Tn P
+        }
+
+    }
+
+    function reset(id) {
+        if (id === identifier) {
+            touched = false;
+            identifier = undefined;
+        }
+    }
+
+    return { draw, is_touched, reset, move };
 
 }
 
