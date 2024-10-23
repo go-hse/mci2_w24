@@ -10,12 +10,13 @@ window.onload = () => {
 
 
     const interactiveElements = [];
-    interactiveElements.push(lib.createButton(ctx, 100, 100, 50, () => { console.log("btn A"); }));
-    interactiveElements.push(lib.createButton(ctx, 200, 100, 50, () => { console.log("btn B"); }));
+    const Touches = {}, points = []
+    let lineColor = "#f00";
+    interactiveElements.push(lib.createButton(ctx, 100, 100, 50, () => { lineColor = "#f00"; }));
+    interactiveElements.push(lib.createButton(ctx, 200, 100, 50, () => { lineColor = "#0f0"; }));
     // interactiveElements.push(lib.createButtonFromPath(ctx, 400, 100, u, 30, () => { console.log("btn U"); }));
     interactiveElements.push(lib.createGrabbable(ctx, 400, 100, u, 30));
 
-    const Touches = {};
 
     canvas.addEventListener("touchstart", (evt) => {
         evt.preventDefault();
@@ -24,7 +25,7 @@ window.onload = () => {
             for (const ie of interactiveElements) {
                 ie.is_touched(t.identifier, t.pageX, t.pageY);
             }
-
+            points.push({ isStart: true, lineColor, x: t.pageX, y: t.pageY });
             // console.log(`finger ${t.identifier}: ${t.pageX}, ${t.pageY}`);
         }
     });
@@ -47,25 +48,45 @@ window.onload = () => {
             for (const ie of interactiveElements) {
                 ie.move(t.identifier, t.pageX, t.pageY);
             }
+            points.push({ isStart: false, lineColor, x: t.pageX, y: t.pageY });
         }
     });
 
+    function drawLines() {
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        for (let p of points) {
+            if (p.isStart) {
+                ctx.stroke();
+                ctx.strokeStyle = p.lineColor;
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+            } else {
+                ctx.lineTo(p.x, p.y);
+            }
+        }
+        ctx.stroke();
+
+    }
 
     // Haupt-Zeichnen-Funktion
     function draw() {
         ctx.resetTransform();
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        const ids = Object.keys(Touches);
-        // console.log(ids);
-        for (const identifier of ids) {
-            const t = Touches[identifier];
-            lib.drawStar(ctx, t.x, t.y, 6, 40, 30);
-        }
 
         for (const ie of interactiveElements) {
             ie.draw();
         }
+
+        const ids = Object.keys(Touches);
+        // console.log(ids);
+        for (const identifier of ids) {
+            const t = Touches[identifier];
+            lib.drawStar(ctx, t.x, t.y, 6, 12, 8);
+        }
+
+        drawLines();
 
         window.requestAnimationFrame(draw);
     }

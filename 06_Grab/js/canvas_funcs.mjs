@@ -112,8 +112,8 @@ export function createGrabbable(ctx, x, y, p, sc) {
 
     function is_touched(id, tx, ty) {
         const I = (new DOMMatrix(L)).invertSelf();  // M-1
-        const tp = I.transformPoint(new DOMPoint(tx, ty));
-        touched = ctx.isPointInPath(p, tp.x, tp.y);
+        const transformedTP = I.transformPoint(new DOMPoint(tx, ty));
+        touched = ctx.isPointInPath(p, transformedTP.x, transformedTP.y);
         if (touched) {
             identifier = id;
             P = (new DOMMatrix([1, 0, 0, 1, -tx, -ty])).multiplySelf(L); // Ti-1 Li
