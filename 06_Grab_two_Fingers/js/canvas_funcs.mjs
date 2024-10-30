@@ -181,7 +181,7 @@ export function createGrabbableTwo(ctx, x, y, thePath, sc) {
                 identifierTwo = id;
                 x2 = tx; y2 = ty;
                 const alpha = Math.atan2(y2 - y1, x2 - x1);
-                P = getTransform(ctx, tx, ty, alpha, 1).invertSelf().multiplySelf(L); // Ti-1 Li
+                P = getTransform(ctx, x1, y1, alpha, 1).invertSelf().multiplySelf(L); // Ti-1 Li
             }
         }
     }
@@ -196,9 +196,9 @@ export function createGrabbableTwo(ctx, x, y, thePath, sc) {
         }
         if (identifierOne !== undefined && identifierTwo !== undefined) {
             const alpha = Math.atan2(y2 - y1, x2 - x1);
-            L = getTransform(ctx, tx, ty, alpha, 1).multiplySelf(P); // Tm P
+            L = getTransform(ctx, x1, y1, alpha, 1).multiplySelf(P); // Tm P
         } else if (identifierOne !== undefined) {
-            L = getTransform(ctx, tx, ty, 0, 1).multiplySelf(P); // Tm P
+            L = getTransform(ctx, x1, y1, 0, 1).multiplySelf(P); // Tm P
         }
     }
 
