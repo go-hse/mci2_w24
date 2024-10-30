@@ -8,17 +8,12 @@ window.onload = () => {
 
     const u = lib.u_path();
 
-
     const interactiveElements = [];
     const Touches = {}, points = [];
     let lineColor = "#aaa";
-    interactiveElements.push(lib.createButton(ctx, 100, 100, 50, () => { lineColor = "#f00"; }));
-    interactiveElements.push(lib.createButton(ctx, 200, 100, 50, () => { lineColor = "#0f0"; }));
-    interactiveElements.push(lib.createButton(ctx, 300, 100, 50, () => { points.length = 0; }));
-    // interactiveElements.push(lib.createButtonFromPath(ctx, 400, 100, u, 30, () => { console.log("btn U"); }));
-    interactiveElements.push(lib.createGrabbable(ctx, 400, 200, u, 30));
-    interactiveElements.push(lib.createJoystick(ctx, 400, 400));
+    interactiveElements.push(lib.createGrabbableTwo(ctx, 200, 200, u, 30));
 
+    document.addEventListener('contextmenu', event => event.preventDefault());
 
     canvas.addEventListener("touchstart", (evt) => {
         evt.preventDefault();
@@ -88,7 +83,7 @@ window.onload = () => {
             lib.drawStar(ctx, t.x, t.y, 6, 12, 8);
         }
 
-        drawLines();
+        // drawLines();
 
         window.requestAnimationFrame(draw);
     }

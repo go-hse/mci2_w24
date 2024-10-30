@@ -96,10 +96,9 @@ export function createButtonFromPath(ctx, x, y, p, sc, callback) {
 
 
 export function createGrabbable(ctx, x, y, p, sc) {
-    let touched = false, identifier, P;  // Closure: jedes "Objekt" hat diese Variablen für sich angelegt 
+    let touched = false, identifier, P;
     let L = setTransform(ctx, x, y, 0, sc);  // Matrix M Transformation
 
-    // aufgerufen in Main, Schleife über alle interaktiben Obj. in main-draw-Funktion, 
     function draw() {
         ctx.save();
         // console.log(L.e, L.f);
@@ -111,7 +110,6 @@ export function createGrabbable(ctx, x, y, p, sc) {
         ctx.restore();
     }
 
-    // aufgerufen im Event-Handler touchstart
     function is_touched(id, tx, ty) {
         const I = (new DOMMatrix(L)).invertSelf();  // M-1
         const transformedTP = I.transformPoint(new DOMPoint(tx, ty));
@@ -122,7 +120,6 @@ export function createGrabbable(ctx, x, y, p, sc) {
         }
     }
 
-    // aufgerufen im Event-Handler touchmove
     function move(id, tx, ty) {
         if (id === identifier) {
             // console.log(id, tx, ty);
@@ -131,7 +128,6 @@ export function createGrabbable(ctx, x, y, p, sc) {
 
     }
 
-    // aufgerufen im Event-Handler touchend
     function reset(id) {
         if (id === identifier) {
             touched = false;
@@ -140,88 +136,55 @@ export function createGrabbable(ctx, x, y, p, sc) {
     }
 
     return { draw, is_touched, reset, move };
-
 }
 
-export function createGrabbableTwo(ctx, x, y, thePath, sc) {
-    let touched = false, identifierOne, identifierTwo, P;  // Closure: jedes "Objekt" hat diese Variablen für sich angelegt 
-    let x1, y1, x2, y2;
-
+export function createGrabbableTwo(ctx, x, y, p, sc) {
+    let touched = false, identifier, P;
     let L = setTransform(ctx, x, y, 0, sc);  // Matrix M Transformation
 
-    // aufgerufen in Main, Schleife über alle interaktiben Obj. in main-draw-Funktion, 
     function draw() {
         ctx.save();
         // console.log(L.e, L.f);
         if (touched)
-            fillPath(ctx, thePath, L, "#f00");
+            fillPath(ctx, p, L, "#f00");
         else
-            fillPath(ctx, thePath, L, "#f0f");
+            fillPath(ctx, p, L, "#f0f");
 
         ctx.restore();
     }
 
-    // aufgerufen im Event-Handler touchstart
-
-    // id: identifier des Touch-Punkt
-    // tx: x-Koordinate des Touch-Punkt
-    // ty: y-Koordinate des Touch-Punkt
     function is_touched(id, tx, ty) {
-        if (identifierOne === undefined) {
-            const I = (new DOMMatrix(L)).invertSelf();  // M-1
-            const transformedTP = I.transformPoint(new DOMPoint(tx, ty));
-            touched = ctx.isPointInPath(thePath, transformedTP.x, transformedTP.y);
-            if (touched) {
-                identifierOne = id;
-                x1 = tx; y1 = ty;
-                P = (new DOMMatrix([1, 0, 0, 1, -tx, -ty])).multiplySelf(L); // Ti-1 Li
-            }
-        } else {
-            if (identifierTwo === undefined) {
-                identifierTwo = id;
-                x2 = tx; y2 = ty;
-                const alpha = Math.atan2(y2 - y1, x2 - x1);
-                P = getTransform(ctx, tx, ty, alpha, 1).invertSelf().multiplySelf(L); // Ti-1 Li
-            }
+        const I = (new DOMMatrix(L)).invertSelf();  // M-1
+        const transformedTP = I.transformPoint(new DOMPoint(tx, ty));
+        touched = ctx.isPointInPath(p, transformedTP.x, transformedTP.y);
+        if (touched) {
+            identifier = id;
+            P = (new DOMMatrix([1, 0, 0, 1, -tx, -ty])).multiplySelf(L); // Ti-1 Li
         }
     }
 
-    // aufgerufen im Event-Handler touchmove
     function move(id, tx, ty) {
-        if (id === identifierOne) {
-            x1 = tx; y1 = ty;
+        if (id === identifier) {
+            // console.log(id, tx, ty);
+            L = (new DOMMatrix([1, 0, 0, 1, tx, ty])).multiplySelf(P);   // Tn P
         }
-        if (id === identifierTwo) {
-            x2 = tx; y2 = ty;
-        }
-        if (identifierOne !== undefined && identifierTwo !== undefined) {
-            const alpha = Math.atan2(y2 - y1, x2 - x1);
-            L = getTransform(ctx, tx, ty, alpha, 1).multiplySelf(P); // Tm P
-        } else if (identifierOne !== undefined) {
-            L = getTransform(ctx, tx, ty, 0, 1).multiplySelf(P); // Tm P
-        }
+
     }
 
-    // aufgerufen im Event-Handler touchend
     function reset(id) {
-        if (id === identifierOne) {
+        if (id === identifier) {
             touched = false;
-            identifierOne = undefined;
-        }
-        if (id === identifierTwo) {
-            identifierTwo = undefined;
-            P = (new DOMMatrix([1, 0, 0, 1, -x1, -y1])).multiplySelf(L); // Ti-1 Li
+            identifier = undefined;
         }
     }
 
     return { draw, is_touched, reset, move };
-
 }
 
 
-
 export function createJoystick(ctx, x, y, radius = 60) {
-    let touched = false, identifier;
+    let touched = false, identifier, Pre, moveIt = false;
+    let L = getTransform(ctx, x, y - 100, 0, 1);
 
     const Touchpoints = {};
 
@@ -229,6 +192,12 @@ export function createJoystick(ctx, x, y, radius = 60) {
     function draw() {
         if (touched) circle(ctx, x, y, radius, "orange");
         else circle(ctx, x, y, radius, "red");
+
+        drawWithTransformMatrix(ctx, L, () => {
+            // console.log(L);
+            ctx.fillStyle = "#aaa";
+            ctx.fillRect(0, 0, 10, 20);
+        });
 
         if (Touchpoints.initial !== undefined)
             circle(ctx, Touchpoints.initial.tx, Touchpoints.initial.ty, 6, "gray");
@@ -242,6 +211,9 @@ export function createJoystick(ctx, x, y, radius = 60) {
         if (touched) {
             identifier = id;
             Touchpoints.initial = { tx, ty };
+
+            const alpha = Math.atan2(ty - y, tx - x);
+            Pre = getTransform(ctx, tx, ty, alpha).invertSelf().multiplySelf(L);
         }
     }
 
@@ -252,10 +224,14 @@ export function createJoystick(ctx, x, y, radius = 60) {
                 const d = distance(x, y, tx, ty);
                 if (d > radius) {
                     Touchpoints.firstExternal = { tx, ty };
+                    moveIt = true;
                 }
             }
         }
-
+        if (moveIt) {
+            const alpha = Math.atan2(ty - y, tx - x);
+            L = getTransform(ctx, tx, ty, alpha).multiplySelf(Pre);
+        }
     }
 
     function reset(id) {
@@ -264,6 +240,7 @@ export function createJoystick(ctx, x, y, radius = 60) {
             identifier = undefined;
             Touchpoints.firstExternal = undefined;
             Touchpoints.initial = undefined;
+            moveIt = false;
         }
     }
 
@@ -397,6 +374,15 @@ export function setTransform(ctx, x, y, alpha = 0, sc = 1) {
     ctx.scale(sc, sc); // Skalierung
     return ctx.getTransform(); // Berechnete Matrix speichern
 }
+
+export function drawWithTransformMatrix(ctx, M, draw) {
+    ctx.save();
+    ctx.resetTransform(); // Zurücksetzen auf Identität
+    ctx.setTransform(M);
+    draw();
+    ctx.restore();
+}
+
 
 export function getTransform(ctx, x, y, alpha = 0, sc = 1) {
     ctx.save();  // Speichern des Zustands mit der aktuellen Matrix auf Stack
