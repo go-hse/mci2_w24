@@ -1,4 +1,6 @@
 import * as THREE from '../99_Lib/three.module.min.js';
+import { add } from './js/geometry.mjs';
+
 console.log("ThreeJs " + THREE.REVISION);
 window.onload = function () {
 
@@ -10,16 +12,24 @@ window.onload = function () {
     light.position.set(0, 2, 2);
     scene.add(light);
     // Kamera
-    const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(0, 0, 1);
     scene.add(camera);
     //Geometrie
-    const box = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.1, 0.1), new THREE.MeshStandardMaterial({
-        color: 0xff33ff,
-        roughness: 0.7,
-        metalness: 0.0,
-    }));
-    scene.add(box);
+
+    const arr = [];
+    let count = 0;
+
+    const delta = 0.3, z = -1;
+    for (let x = -2; x <= 2; x += delta * 2) {
+        for (let y = -1; y <= 1; y += delta) {
+            if (++count % 2 == 0)
+                arr.push(add(6, scene, x, y, z));
+            else
+                arr.push(add(1, scene, x, y, z));
+        }
+
+    }
 
     // Renderer erstellen
     const renderer = new THREE.WebGLRenderer({
@@ -31,8 +41,16 @@ window.onload = function () {
     document.body.appendChild(renderer.domElement);
     // Renderer-Loop starten
     function render() {
-        box.rotation.x += 0.01;
-        // box.rotation.y += 0.01;
+        const t = (new Date().getMilliseconds()).toFixed() % 100;
+        const x = Math.random() * 0.01;
+        const y = Math.random() * 0.01;
+        const z = Math.random() * 0.01;
+        for (const o of arr) {
+            o.rotation.x += x;
+            o.rotation.y += y;
+            o.rotation.z += z;
+        }
+
         renderer.render(scene, camera);
     }
     renderer.setAnimationLoop(render);
