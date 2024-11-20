@@ -196,8 +196,10 @@ export function createGrabbableTwo(ctx, x, y, thePath, sc) {
         }
         if (identifierOne !== undefined && identifierTwo !== undefined) {
             const alpha = Math.atan2(y2 - y1, x2 - x1);
+            // Verwendung von x1/y1: Drehung um den ERSTEN Finger 
             L = getTransform(ctx, x1, y1, alpha, 1).multiplySelf(P); // Tm P
         } else if (identifierOne !== undefined) {
+            // Verwendung von x1/y1: Drehung um den ERSTEN Finger 
             L = getTransform(ctx, x1, y1, 0, 1).multiplySelf(P); // Tm P
         }
     }
@@ -207,9 +209,12 @@ export function createGrabbableTwo(ctx, x, y, thePath, sc) {
         if (id === identifierOne) {
             touched = false;
             identifierOne = undefined;
+            identifierTwo = undefined;
         }
         if (id === identifierTwo) {
             identifierTwo = undefined;
+            // Rücksetzen von P, weil nur noch ein Finger vorhanden
+            // Verwendung von x1/y1: Drehung um den ERSTEN Finger 
             P = (new DOMMatrix([1, 0, 0, 1, -x1, -y1])).multiplySelf(L); // Ti-1 Li
         }
     }
