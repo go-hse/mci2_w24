@@ -40,19 +40,21 @@ window.onload = function () {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     // Renderer-Loop starten
-    function render() {
-        const t = (new Date().getMilliseconds()).toFixed() % 100;
-        const x = Math.random() * 0.01;
-        const y = Math.random() * 0.01;
-        const z = Math.random() * 0.01;
-        for (const o of arr) {
-            o.rotation.x += x;
-            o.rotation.y += y;
-            o.rotation.z += z;
-        }
+    {
+        const x = Math.random() * 0.1;
+        const y = Math.random() * 0.1;
+        const z = Math.random() * 0.1;
+        function render() {
+            const t = (new Date().getMilliseconds()).toFixed() % 100;
+            for (const o of arr) {
+                o.rotation.x += x;
+                o.rotation.y += y;
+                o.rotation.z += z;
+            }
 
-        renderer.render(scene, camera);
+            renderer.render(scene, camera);
+        }
+        renderer.setAnimationLoop(render);
     }
-    renderer.setAnimationLoop(render);
 
 };
