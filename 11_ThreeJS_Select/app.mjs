@@ -29,19 +29,11 @@ window.onload = function () {
     const cursor = add(1, scene);
     mouse(cursor);
 
-    const delta = 0.3, z = -1;
-    for (let x = -2; x <= 2; x += delta * 2) {
-        for (let y = -1; y <= 1; y += delta) {
-            if (++count % 2 == 0)
-                arr.push(add(6, scene, x, y, z));
-            else
-                arr.push(add(1, scene, x, y, z));
-        }
-    }
-
     const menuItems = [];
-    for (let x = -2; x <= 2; x += 1) {
-        menuItems.push(add(0, scene, x, 0, -0.5))
+    for (let x = -2; x <= 2; x += 0.5) {
+        for (let y = -2; y <= 2; y += 0.5) {
+            menuItems.push(add(0, scene, x, y, -5))
+        }
     }
 
     // Renderer erstellen
@@ -53,23 +45,40 @@ window.onload = function () {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     let startTime = new Date();
+
+    let position = new THREE.Vector3();
+    let rotation = new THREE.Quaternion();
+    let scale = new THREE.Vector3();
+    let direction = new THREE.Vector3();
+    let diff = new THREE.Vector3();
     // Renderer-Loop starten
     {
         const x = Math.random() * 0.1;
         const y = Math.random() * 0.1;
         const z = Math.random() * 0.1;
+
+        let selected = 0;
         function render() {
             const t = (new Date().getMilliseconds()).toFixed() % 100;
-            for (const o of arr) {
-                o.rotation.x += x;
-                o.rotation.y += y;
-                o.rotation.z += z;
+            cursor.matrix.decompose(position, rotation, scale);
+            direction.set(0, 1, 0);
+            direction.applyQuaternion(rotation);
+
+            const distances = menuItems.map(item => diff.subVectors(item.position, position).cross(direction).length());
+            const minSelect = distances.indexOf(Math.min(...distances));
+            if (minSelect !== selected) {
+                selected = minSelect;
+                console.log(distances, minSelect);
+                for (let i = 0; i < menuItems.length; ++i) {
+                    menuItems[i].material.color.set(0x888888);
+                }
+                menuItems[selected].material.color.set(0xffaaaa);
             }
             renderer.render(scene, camera);
             const now = new Date();
             const delta = now - startTime;
             startTime = now;
-            console.log(`delta ${delta / 1000} sec`);
+            // console.log(`delta ${delta / 1000} sec`);
         }
         renderer.setAnimationLoop(render);
     }
