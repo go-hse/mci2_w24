@@ -1,5 +1,5 @@
 import * as THREE from '../99_Lib/three.module.min.js';
-import { add } from './js/geometry.mjs';
+import { add, createLine, createRay } from './js/geometry.mjs';
 import { keyboard, mouse } from './js/interaction2D.mjs';
 
 console.log("ThreeJs " + THREE.REVISION);
@@ -29,12 +29,16 @@ window.onload = function () {
     const cursor = add(1, scene);
     mouse(cursor);
 
+    const cursorLine = createLine(scene);
+
     const menuItems = [];
     for (let x = -2; x <= 2; x += 0.5) {
         for (let y = -2; y <= 2; y += 0.5) {
             menuItems.push(add(0, scene, x, y, -5))
         }
     }
+
+    const rayCast = createRay(menuItems);
 
     // Renderer erstellen
     const renderer = new THREE.WebGLRenderer({
@@ -51,6 +55,7 @@ window.onload = function () {
     let scale = new THREE.Vector3();
     let direction = new THREE.Vector3();
     let diff = new THREE.Vector3();
+
     // Renderer-Loop starten
     {
         const x = Math.random() * 0.1;
@@ -61,18 +66,31 @@ window.onload = function () {
         function render() {
             const t = (new Date().getMilliseconds()).toFixed() % 100;
             cursor.matrix.decompose(position, rotation, scale);
+
+            cursorLine(0, position);
+
+            // Variante: Auge- Cursor - Peilung
+            // direction.subVectors(camera.position, position).normalize();
+            // const distances = menuItems.map(item => diff.subVectors(item.position, camera.position).cross(direction).length());
+
+
+            // Variante: Cursor - Richtung
             direction.set(0, 1, 0);
             direction.applyQuaternion(rotation);
-
             const distances = menuItems.map(item => diff.subVectors(item.position, position).cross(direction).length());
             const minSelect = distances.indexOf(Math.min(...distances));
             if (minSelect !== selected) {
                 selected = minSelect;
-                console.log(distances, minSelect);
+                // console.log(distances, minSelect);
                 for (let i = 0; i < menuItems.length; ++i) {
                     menuItems[i].material.color.set(0x888888);
                 }
                 menuItems[selected].material.color.set(0xffaaaa);
+            }
+
+            const hitObj = rayCast(position, direction);
+            if (hitObj) {
+                console.log(hitObj);
             }
             renderer.render(scene, camera);
             const now = new Date();

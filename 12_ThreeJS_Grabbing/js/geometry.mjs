@@ -2,7 +2,7 @@ import * as THREE from '../../99_Lib/three.module.min.js';
 
 const geometries = [
     new THREE.BoxGeometry(0.25, 0.25, 0.25),
-    new THREE.ConeGeometry(0.01, 0.04, 64),
+    new THREE.ConeGeometry(0.1, 0.4, 64),
     new THREE.CylinderGeometry(0.2, 0.2, 0.2, 64),
     new THREE.IcosahedronGeometry(0.2, 3),
     new THREE.TorusKnotGeometry(.2, .03, 50, 16),
@@ -21,6 +21,10 @@ function randomMaterial() {
 export function add(i, parent, x = 0, y = 0, z = 0) {
     let object = new THREE.Mesh(geometries[i], randomMaterial());
     object.position.set(x, y, z);
+    object.updateMatrix();
+    object.castShadow = true;
+    object.name = `o_${i}`;
+    object.matrixAutoUpdate = false;
     parent.add(object);
     return object;
 }
@@ -29,7 +33,7 @@ export function createLine(scene) {
     const material = new THREE.LineBasicMaterial({ color: 0xffffff });
     const points = [];
     points.push(new THREE.Vector3(0, 0, 0));
-    points.push(new THREE.Vector3(0, 0, -1));
+    points.push(new THREE.Vector3(0, 1, 0));
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
     const line = new THREE.Line(geometry, material);
@@ -45,18 +49,3 @@ export function createLine(scene) {
         line.geometry.attributes.position.needsUpdate = true;
     }
 }
-
-
-export function createRay(objects) {
-    const rayCaster = new THREE.Raycaster();
-
-    // anon. Funktion, wird wiederholt aufgeruft
-    return (position, direction) => {
-        rayCaster.set(position, direction);
-        const intersects = rayCaster.intersectObjects(objects);
-        if (intersects.length) {
-            return intersects[0];
-        }
-    }
-
-} 
