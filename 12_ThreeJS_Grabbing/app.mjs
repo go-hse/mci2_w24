@@ -103,7 +103,7 @@ window.onload = function () {
 
         direction.normalize();
 
-
+        // false: undefined; 0, null, ""
         const intersectObject = rayFunc(position, direction);
         if (intersectObject) {
             // console.log(intersectObject.object.name);

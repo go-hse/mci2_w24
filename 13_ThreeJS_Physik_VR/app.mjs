@@ -67,7 +67,7 @@ window.onload = async function () {
 
     //////////////////////////////////////////////////////////////////////////////
     // Spheres
-    const spheres = [];
+    const physicalSpheres = [];
     const MAX_SPHERES = 10;
     for (let i = 0; i < MAX_SPHERES; ++i) {
         const sphere = add(3, scene, 0, -1, 0);
@@ -75,16 +75,16 @@ window.onload = async function () {
         // sphere.receiveShadow = true;
         sphere.userData.physics = { mass: 0.9 };
         sphere.name = `sphere_${i}`;
-        spheres.push(sphere);
+        physicalSpheres.push(sphere);
     }
-    const pBoxes = [];
+    const physicalBoxes = [];
     for (let i = 0; i < MAX_SPHERES; ++i) {
         const obj = add(0, scene, 0, -1, 0);
         obj.castShadow = true;
         // obj.receiveShadow = true;
         obj.userData.physics = { mass: 1.5 };
         obj.name = `obj_${i}`;
-        pBoxes.push(obj);
+        physicalBoxes.push(obj);
     }
 
     const cursor = add(1, scene);
@@ -118,10 +118,10 @@ window.onload = async function () {
         velocity.set(direction.x * MOVESPEED, direction.y * MOVESPEED, direction.z * MOVESPEED);
         if (box) {
             if (++boxIdx >= MAX_SPHERES) boxIdx = 0;
-            physics.setMeshPositionVelocity(pBoxes[boxIdx], cursor_position, velocity);
+            physics.setMeshPositionVelocity(physicalBoxes[boxIdx], cursor_position, velocity);
         } else {
             if (++ballIdx >= MAX_SPHERES) ballIdx = 0;
-            physics.setMeshPositionVelocity(spheres[ballIdx], cursor_position, velocity);
+            physics.setMeshPositionVelocity(physicalSpheres[ballIdx], cursor_position, velocity);
         }
     }
 
