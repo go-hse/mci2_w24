@@ -13,7 +13,8 @@ export function keyboard() {
                 ko.callback(active);
             }
         } else {
-            console.log("undefined key", event.key);
+            if (["Control", "Meta", "Shift"].includes(event.key) === false)
+                console.log("key", event.key);
         }
     }
 
