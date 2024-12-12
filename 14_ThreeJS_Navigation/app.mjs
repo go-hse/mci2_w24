@@ -4,8 +4,10 @@ import { add, createLine, loadGLTFcb, randomMaterial, shaderMaterial } from './j
 import { createRay } from './js/ray.mjs';
 
 
-import { Water } from '../99_Lib/jsm//objects/Water.js';
-import { Sky } from '../99_Lib/jsm//objects/Sky.js';
+import { EffectComposer } from '../99_Lib/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from '../99_Lib/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from '../99_Lib/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from '../99_Lib/jsm/postprocessing/OutputPass.js';
 
 
 import { VRButton } from '../99_Lib/jsm/webxr/VRButton.js';
@@ -95,6 +97,8 @@ window.onload = async function () {
     // Renderer-Parameter setzen
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ReinhardToneMapping;
+    renderer.toneMappingExposure = Math.pow(1, 4.0);
     renderer.shadowMap.enabled = true;
     document.body.appendChild(renderer.domElement);
     document.body.appendChild(VRButton.createButton(renderer));
@@ -109,6 +113,37 @@ window.onload = async function () {
         console.log("verbinde", id, data.handedness)
     });
 
+    const params = {
+        threshold: 0,
+        strength: 1,
+        radius: 0,
+        exposure: 1
+    };
+
+    const renderScene = new RenderPass(scene, camera);
+
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+    bloomPass.threshold = params.threshold;
+    bloomPass.strength = params.strength;
+    bloomPass.radius = params.radius;
+
+    const outputPass = new OutputPass();
+
+    const composer = new EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
+    composer.addPass(outputPass);
+
+
+    window.addEventListener('resize', onWindowResize);
+    function onWindowResize() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+        composer.setSize(width, height);
+    }
 
 
     const addKey = keyboard();
@@ -226,6 +261,8 @@ window.onload = async function () {
             inverseHand = undefined;
         }
         renderer.render(scene, camera);
+        composer.render();
+
     }
     renderer.setAnimationLoop(render);
 };
